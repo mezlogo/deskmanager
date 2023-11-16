@@ -128,8 +128,20 @@ fi
 - `deskmanager-core` (lib) is a heart of the project. It uses common module and can load external module, like contrib module.
 - `deskmanager-common` (lib) is a common plain node js module to be used by both core and contrib modules.
 
+## installation
+
+Currently installation from sources is the only way
+
+1. exec `npm install` in each modules or just exec `prepare.sh` script
+2. install globally `deskmanager-cli` module
+3. assure that npm global bin dir in path. My preference is to install npm global as user-global by setting prefix for npm local repo `prefix=~/.local/npm` and adding bin folder to PATH env: `export PATH="$HOME/.local/npm/bin/:$PATH"`
+
+## usage
+
+- `list-handlers`: `deskmanager --handler-dir deskmanager-contrib/src list-handlers`
+
 # TODO
 
-- [] write installation section
+- [x] write installation section
 - [] write usage section
 - [] write autocompletion script
