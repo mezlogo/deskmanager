@@ -1,0 +1,19 @@
+{
+  "name": "deskmanager-core",
+  "version": "0.1.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "deskmanager-common": "file:../deskmanager-common",
+    "js-yaml": "^4.1.0"
+  }
+}

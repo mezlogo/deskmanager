@@ -1,0 +1,6 @@
+feature:
+  config:
+  - target: myfile.txt
+    link: $DESKMANAGE_TEST_DIR/mylinktofile.txt
+  - target: mydir
+    link: $DESKMANAGE_TEST_DIR/.mylinktodir
