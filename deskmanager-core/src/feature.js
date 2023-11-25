@@ -16,8 +16,13 @@ class FeatureService {
         if (!feature) {
             return;
         }
-        const declarations = Object.keys(feature).map(name => ({ name, value: feature[name] }));
-        return { name: featureName, declarations, absPath: featurePath, };
+        if (Array.isArray(feature)) {
+            const declarations = feature;
+            return { name: featureName, declarations, absPath: featurePath, };
+        } else {
+            const declarations = Object.keys(feature).map(name => ({ name, value: feature[name] }));
+            return { name: featureName, declarations, absPath: featurePath, };
+        }
     }
 
     async loadAllFeaturesByDir(dir) {

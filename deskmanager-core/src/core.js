@@ -82,17 +82,53 @@ async function deskmanagerCore(context, featureService, handlerService) {
 
         await Promise.all(handlers.map(handler => handler.init(context)));
 
-        for (const handler of handlers.sort((l, r) => l.order - r.order)) {
-            const handlerName = handler.name;
-            const handlerArgs = features.map(feature => {
-                const featureName = feature.name;
-                const featurePath = feature.absPath;
-                const declaration = feature.declarations.find(it => it.name === handlerName);
-                return { featureName, featurePath, declaration: declaration?.value, };
-            }).filter(it => !!it.declaration);
-            logger.log(`start processing handler: [${handlerName}]`);
-            await handler[command](handlerArgs);
-        }
+        const handlersByName = handlers.reduce((acc, v) => { acc[v.name] = v; return acc; }, {});
+
+        const featureDeclarations = features.flatMap(feature => {
+            const featureName = feature.name;
+            const featurePath = feature.absPath;
+            return feature.declarations.map(declaration => {
+                return {
+                    featureName,
+                    featurePath,
+                    handlerName: declaration.name,
+                    declaration: declaration.value,
+                    order: declaration.order ?? handlers.find(handler => handler.name === declaration.name).order,
+                };
+            });
+        });
+
+        const byOrder = {};
+
+        featureDeclarations.forEach(featureDeclaration => {
+            const order = featureDeclaration.order;
+            let handlersForGivenOrder = byOrder[order];
+
+            if (!handlersForGivenOrder) {
+                handlersForGivenOrder = {};
+                byOrder[order] = handlersForGivenOrder;
+            }
+
+            const handlerName = featureDeclaration.handlerName;
+            let declarationsForGivenHandler = handlersForGivenOrder[handlerName];
+            
+            if (!declarationsForGivenHandler) {
+                declarationsForGivenHandler = [];
+                handlersForGivenOrder[handlerName] = declarationsForGivenHandler;
+            }
+
+            declarationsForGivenHandler.push(featureDeclaration);
+        })
+
+
+        const inProgress = Object.entries(byOrder).sort((l, r) => l[0] - r[0]).flatMap(([order, handlersForGivenOrder]) => {
+            return Object.entries(handlersForGivenOrder).map(([handlerName, declarationsForGivenHandler]) => {
+                const handler = handlersByName[handlerName];
+                return handler[command](declarationsForGivenHandler);
+            })
+        });
+
+        await Promise.all(inProgress);
 
         return;
     }

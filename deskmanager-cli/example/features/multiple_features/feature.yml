@@ -1,3 +1,0 @@
-feature:
-  greet: 'Bob'
-  execshell: 'echo $USER; uname -a'

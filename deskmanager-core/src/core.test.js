@@ -78,11 +78,53 @@ describe('test for core function', () => {
     })
 
     describe('test for [diff] command', () => {
+        test('when given features with order field and handlers found should execute handlers in sorted order', async () => {
+            const calledList = [];
+            const handlerInit = jest.fn(() => Promise.resolve());
+            const testh1DiffMock = jest.fn(() => calledList.push('testh1'));
+
+            loadAllFeaturesByDir.mockReturnValueOnce(Promise.resolve([
+                {
+                    name: 'declaredfeature',
+                    absPath: 'feature path',
+                    declarations: [
+                        { name: 'testh1', value: 'v1', order: 5 },
+                        { name: 'testh1', value: 'v2', order: 5 },
+                        { name: 'testh1', value: 'v3', order: 150 },
+                        { name: 'testh1', value: 'v4'},
+                    ]
+                },
+            ]));
+
+            loadAllHandlersByDir.mockReturnValueOnce(Promise.resolve([
+                { name: 'testh1', order: 50, description: 'test desc 1', diff: testh1DiffMock, init: handlerInit, },
+            ]));
+
+            await callSut({ command: 'diff', handlerDir: '.', featureDir: '.', featureName: 'declaredfeature' });
+
+            expect(handlerInit).toHaveBeenCalled();
+            expect(testh1DiffMock).toHaveBeenCalled();
+
+            expect(testh1DiffMock.mock.calls[0][0]).toEqual([
+                { featureName: 'declaredfeature', featurePath: 'feature path', declaration: 'v1', order: 5, handlerName: 'testh1' },
+                { featureName: 'declaredfeature', featurePath: 'feature path', declaration: 'v2', order: 5, handlerName: 'testh1' },
+            ]);
+
+            expect(testh1DiffMock.mock.calls[1][0]).toEqual([
+                { featureName: 'declaredfeature', featurePath: 'feature path', declaration: 'v4', order: 50, handlerName: 'testh1' },
+            ]);
+            expect(testh1DiffMock.mock.calls[2][0]).toEqual([
+                { featureName: 'declaredfeature', featurePath: 'feature path', declaration: 'v3', order: 150, handlerName: 'testh1' },
+            ]);
+
+            expect(calledList).toEqual(['testh1', 'testh1', 'testh1']);
+        })
+
         test('when given features and handlers found should execute handlers in sorted order', async () => {
-            let firstCalledHandlerName = undefined;
-            const handlerInit = jest.fn(async () => {});
-            const testh1DiffMock = jest.fn(() => firstCalledHandlerName = firstCalledHandlerName || 'testh1');
-            const testh2DiffMock = jest.fn(() => firstCalledHandlerName = firstCalledHandlerName || 'testh2');
+            const calledList = [];
+            const handlerInit = jest.fn(() => Promise.resolve());
+            const testh1DiffMock = jest.fn(() => calledList.push('testh1'));
+            const testh2DiffMock = jest.fn(() => calledList.push('testh2'));
 
             loadAllFeaturesByDir.mockReturnValueOnce(Promise.resolve([
                 { name: 'declaredfeature', absPath: 'feature path', declarations: [{ name: 'testh1', value: 'v1'}, { name: 'testh2', value: 'v2'}] },
@@ -100,13 +142,13 @@ describe('test for core function', () => {
             expect(testh2DiffMock).toHaveBeenCalled();
 
             const testh2Args = testh2DiffMock.mock.calls[0][0];
-            expect(testh2Args).toEqual([{ featureName: 'declaredfeature', featurePath: 'feature path', declaration: 'v2', }]);
+            expect(testh2Args).toEqual([{ featureName: 'declaredfeature', featurePath: 'feature path', declaration: 'v2', order: 10, handlerName: 'testh2'}]);
 
 
             const testh1Args = testh1DiffMock.mock.calls[0][0];
-            expect(testh1Args).toEqual([{ featureName: 'declaredfeature', featurePath: 'feature path', declaration: 'v1', }]);
+            expect(testh1Args).toEqual([{ featureName: 'declaredfeature', featurePath: 'feature path', declaration: 'v1', order: 50, handlerName: 'testh1'}]);
 
-            expect(firstCalledHandlerName).toBe('testh2');
+            expect(calledList).toEqual(['testh2', 'testh1']);
         })
 
         test('when handler does not contain particular declared handler by feature should throw an exception', async () => {

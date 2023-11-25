@@ -74,6 +74,21 @@ describe('test for FeatureService class', () => {
 
             expect(actuals).toEqual([{ name: 'feature1', absPath: 'not empty string', declarations: [{ name: 'testhandler', value: 'test value' }]}]);
         })
+
+        test('when featureDir contains feature in ARRAY format shuld parse them', async () => {
+            statFile.mockReturnValueOnce(Promise.resolve({ path: '.', type: 'DIR', ext: ['feature1'] }))
+                .mockReturnValueOnce(Promise.resolve({ path: '.', type: 'DIR', ext: ['feature.yml'] }))
+                .mockReturnValueOnce(Promise.resolve({ path: '.', type: 'FILE', }));
+            
+            resolvePath.mockImplementation(async () => 'not empty string');
+
+            readFileAsString.mockReturnValueOnce(Promise.resolve('file content'))
+            parseStringAsYml.mockReturnValueOnce({ feature: [ { name: 'testhandler', value: 'test value' }] });
+
+            const actuals = await createSut().loadAllFeaturesByDir('anydir');
+
+            expect(actuals).toEqual([{ name: 'feature1', absPath: 'not empty string', declarations: [{ name: 'testhandler', value: 'test value' }]}]);
+        })
     })
 
 });

@@ -1,0 +1,9 @@
+feature:
+  - name: 'greet'
+    value: 'val for greet-1 from arr_notation'
+  - name: 'aloha'
+    value: 'val for aloha-1 from arr_notation'
+  - name: 'greet'
+    value: 'val for greet-2 from arr_notation'
+  - name: 'aloha'
+    value: 'val for aloha-2 from arr_notation'

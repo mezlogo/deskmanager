@@ -1,0 +1,3 @@
+feature:
+  greet: 'val for greet from obj_notation'
+  aloha: 'val for aloha from obj_notation'

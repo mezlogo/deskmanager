@@ -143,5 +143,11 @@ Currently installation from sources is the only way
 # TODO
 
 - [x] write installation section
+- [x] support both types of feature declaration: Object notation and Array notation
+- [x] create an example of Array declaration
+- [x] support field `order` for cases when you wanna overwrite execution order for specific feature declaration
+- [x] create an example with `order` field
+- [] create systemd-handler.js
+- [] create execfile-handler.js
 - [] write usage section
 - [] write autocompletion script

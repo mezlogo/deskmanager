@@ -1,0 +1,11 @@
+feature:
+  - name: 'greet'
+    value: 'val for greet-1 from order_notation order: 1'
+    order: 1
+  - name: 'aloha'
+    value: 'val for aloha-1 from order_notation order: 1000'
+    order: 1000
+  - name: 'greet'
+    value: 'val for greet-2 from order_notation'
+  - name: 'aloha'
+    value: 'val for aloha-2 from order_notation'
