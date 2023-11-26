@@ -1,0 +1,8 @@
+[Unit]
+Description=test system-wide service unit
+
+[Service]
+ExecStart=/bin/bash -c 'echo "Hello, from test system-wide systemd unit" | systemd-cat -t system-test-service -p info'
+
+[Install]
+WantedBy=multi-user.target

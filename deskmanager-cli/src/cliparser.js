@@ -27,6 +27,7 @@ function parseCliOptions(argv) {
 
     program.command('diff').action(() => { command = 'diff'; });
     program.command('install').action(() => { command = 'install'; });
+    program.command('uninstall').action(() => { command = 'uninstall'; });
     program.command('list-features').action(() => { command = 'list-features'; });
     program.command('list-handlers').action(() => { command = 'list-handlers'; });
 

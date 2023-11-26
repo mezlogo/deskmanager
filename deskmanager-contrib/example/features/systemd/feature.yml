@@ -1,0 +1,7 @@
+feature:
+  config:
+    - target: my-system-wide.service
+      link: /etc/systemd/system/my-system-wide.service
+    - target: my-user-wide.service
+      link: $HOME/.config/systemd/user/my-user-wide.service
+  systemd: [user__my-user-wide.service, my-system-wide.service]

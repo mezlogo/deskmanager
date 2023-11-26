@@ -1,3 +1,5 @@
+const { performance } = require('perf_hooks');
+
 async function deskmanagerCore(context, featureService, handlerService) {
     const logger = context.logger;
     const options = context.options;
@@ -37,7 +39,7 @@ async function deskmanagerCore(context, featureService, handlerService) {
         return;
     }
 
-    if ('diff' === command || 'install' === command) {
+    if (['diff', 'install', 'uninstall'].includes(command)) {
         const featureDir = options.featureDir;
         const featureName = options.featureName;
 
@@ -120,15 +122,27 @@ async function deskmanagerCore(context, featureService, handlerService) {
             declarationsForGivenHandler.push(featureDeclaration);
         })
 
+        const ascending = (l, r) => l[0] - r[0];
+        const descending = (l, r) => r[0] - l[0];
+        const sortType = 'uninstall' === command ? descending : ascending;
 
-        const inProgress = Object.entries(byOrder).sort((l, r) => l[0] - r[0]).flatMap(([order, handlersForGivenOrder]) => {
-            return Object.entries(handlersForGivenOrder).map(([handlerName, declarationsForGivenHandler]) => {
+        for (const [order, handlersForGivenOrder] of Object.entries(byOrder).sort(sortType)) {
+            const startTimeOrderLevel = performance.now();
+            logger.debug(`processing order: [${order}]`);
+
+            for (const [handlerName, declarationsForGivenHandler] of Object.entries(handlersForGivenOrder)) {
+
+                const startTimeHandlerLevel = performance.now();
+                logger.debug(`processing order: [${order}] and handler: [${handlerName}]`);
+
                 const handler = handlersByName[handlerName];
-                return handler[command](declarationsForGivenHandler);
-            })
-        });
+                await handler[command](declarationsForGivenHandler);
 
-        await Promise.all(inProgress);
+                logger.debug(`processing order: [${order}] and handler: [${handlerName}] ended. took: [${performance.now() - startTimeHandlerLevel}]`);
+            }
+            
+            logger.debug(`processing order: [${order}] ended. took: [${performance.now() - startTimeOrderLevel}]`);
+        }
 
         return;
     }

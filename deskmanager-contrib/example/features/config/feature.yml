@@ -1,5 +1,7 @@
 feature:
   config:
+  - target: myconfigs/*
+    link: $DESKMANAGE_TEST_DIR
   - target: myfile.txt
     link: $DESKMANAGE_TEST_DIR/mylinktofile.txt
   - target: mydir

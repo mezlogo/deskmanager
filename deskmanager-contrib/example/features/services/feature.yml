@@ -1,2 +1,0 @@
-feature:
-  systemd: [ly.service, user__ssh-agent.service]

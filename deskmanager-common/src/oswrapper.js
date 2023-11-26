@@ -1,4 +1,4 @@
-const { createOsFileWrapper, execshell, } = require('./files');
+const { createOsFileWrapper, execshell, execfile, } = require('./files');
 
 class OsWrapper {
     osFileWrapper;
@@ -27,6 +27,14 @@ class OsWrapper {
         return await this.osFileWrapper.sudoLink(target, link);
     }
 
+    async unlink(link) {
+        return await this.osFileWrapper.unlink(link);
+    }
+
+    async sudoUnlink(link) {
+        return await this.osFileWrapper.sudoUnlink(link);
+    }
+
     async moveFile(from, to) {
         return await this.osFileWrapper.moveFile(from, to);
     }
@@ -37,6 +45,10 @@ class OsWrapper {
 
     execshell(prog, options) {
         return execshell(prog, options);
+    }
+
+    execfile(path, args, cwd) {
+        return execfile(path, args, cwd);
     }
 }
 

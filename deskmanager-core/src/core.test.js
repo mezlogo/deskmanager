@@ -3,6 +3,7 @@ const { deskmanagerCore, } = require('./core');
 describe('test for core function', () => {
 
     let log;
+    let debug;
 
     let loadAllFeaturesByDir;
 
@@ -11,6 +12,7 @@ describe('test for core function', () => {
 
     beforeEach(() => {
         log = jest.fn();
+        debug = jest.fn();
 
         loadAllFeaturesByDir = jest.fn(async () => []);
 
@@ -19,7 +21,7 @@ describe('test for core function', () => {
     });
 
     async function callSut(options) {
-        const context = { options, logger: { log, }, oswrapper: {}, };
+        const context = { options, logger: { log, debug,}, oswrapper: {}, };
         const featureService = { loadAllFeaturesByDir, };
         const handlersService = { loadAllHandlersByDir, loadHandlersByDirAndNames, };
         await deskmanagerCore(context, featureService, handlersService);

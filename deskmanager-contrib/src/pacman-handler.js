@@ -1,9 +1,10 @@
 const READ_PROG = `pacman -Qq`;
 const TEMPLATE = '$TEMPLATE'
-const WRITE_PROG_TEMPLATE = `pikaur -S --noedit ${TEMPLATE}`
+const INSTALL_PROG_TEMPLATE = `pikaur -S --noedit ${TEMPLATE}`
+const UNINSTALL_PROG_TEMPLATE = `sudo pacman -Rns ${TEMPLATE}`
 
 class PacmanHandler {
-    order = 50;
+    order = 10;
     name = 'pacman';
     description = 'handler for install archlinux pacman packages. For aur support uses pikaur';
     
@@ -43,23 +44,45 @@ class PacmanHandler {
     async install(values) {
         const log = this.logger.log;
 
-        const parsedPackages = this.handleFeatures(values.map(it => it.declaration));
-        const notInstalledPackages = parsedPackages.filter(it => !it.installed).map(it => it.package);
+        const parsedEntries = this.handleFeatures(values.map(it => it.declaration));
+        const toModifyEntries = parsedEntries.filter(it => !it.installed).map(it => it.package);
 
-        if (0 === notInstalledPackages.length) {
+        if (0 === toModifyEntries.length) {
             log('all packages are installed');
             return;
         }
 
-        const joinedPackages = notInstalledPackages.join(' ');
-        const prog = WRITE_PROG_TEMPLATE.replace(TEMPLATE, joinedPackages);
+        const joinedEntry = toModifyEntries.join(' ');
+        const prog = INSTALL_PROG_TEMPLATE.replace(TEMPLATE, joinedEntry);
         const process = await this.oswrapper.execshell(prog, { capture: false });
 
         if (undefined != process.erorr) {
             throw `something goes wrong while calling next prog: [${prog}], process: [${process}]`;
         }
 
-        log(`installed packages: [${joinedPackages}]`);
+        log(`installed packages: [${joinedEntry}]`);
+    }
+
+    async uninstall(values) {
+        const log = this.logger.log;
+
+        const parsedEntries = this.handleFeatures(values.map(it => it.declaration));
+        const toModifyEntries = parsedEntries.filter(it => it.installed).map(it => it.package);
+
+        if (0 === toModifyEntries.length) {
+            log('no packages to uninstall');
+            return;
+        }
+
+        const joinedEntry = toModifyEntries.join(' ');
+        const prog = UNINSTALL_PROG_TEMPLATE.replace(TEMPLATE, joinedEntry);
+        const process = await this.oswrapper.execshell(prog, { capture: false });
+
+        if (undefined != process.erorr) {
+            throw `something goes wrong while calling next prog: [${prog}], process: [${process}]`;
+        }
+
+        log(`uninstalled packages: [${joinedEntry}]`);
     }
 }
 

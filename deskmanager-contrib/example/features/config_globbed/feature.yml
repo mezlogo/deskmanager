@@ -1,4 +1,0 @@
-feature:
-  config:
-  - target: myconfigs/*
-    link: $DESKMANAGE_TEST_DIR/configs

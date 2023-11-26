@@ -2,7 +2,7 @@ const BACKUP_SUFFIX = '.deskmngrbkp';
 const GLOB_SUFFIX = '/*';
 
 class ConfigHandler {
-    order = 100;
+    order = 30;
     name = 'config';
     description = `Config handler creates links for config files:
     - it resolves environment variables with regexp by replacing each occure of word starting with '$' and captures everything after '[a-zA-Z0-9_]' like: '$HOME/.config'
@@ -103,7 +103,7 @@ class ConfigHandler {
                 const needBackup = 'NOT_EXIST' !== it.link.type;
 
                 if (same) {
-                    log(`file: [${it.target.absPath}] is already linked`);
+                    log(`file: [${it.link.absPath}] is already links to: [${it.target.absPath}]`);
                 } else {
                     log(`file: [${it.target.absPath}] is not linked. needBackup: [${needBackup}], useSudo: [${useSudo}], link file type: [${it.link.type}]`)
                 }
@@ -136,6 +136,27 @@ class ConfigHandler {
                     await this.oswrapper.sudoLink(it.target.absPath, it.link.absPath);
                 } else {
                     await this.oswrapper.link(it.target.absPath, it.link.absPath);
+                }
+            }));
+        }
+    }
+
+    async uninstall(values) {
+        for (const value of values) {
+            const parsedConfigs = await this.handleFeature(value);
+
+            await Promise.all(parsedConfigs.map(async (it) => {
+                const same = 'LINK' === it.link.type && it.link.ext.absPath === it.target.absPath;
+                if (!same) {
+                    return Promise.resolve();
+                }
+
+                const useSudo = !it.linkParent.canWrite;
+
+                if (useSudo) {
+                    await this.oswrapper.sudoUnlink(it.link.absPath);
+                } else {
+                    await this.oswrapper.unlink(it.link.absPath);
                 }
             }));
         }

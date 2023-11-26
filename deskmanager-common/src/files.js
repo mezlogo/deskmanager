@@ -32,6 +32,19 @@ function execshell(prog, options) {
     }
 }
 
+function execfile(path, args, cwd) {
+    return new Promise((resolve, reject) => {
+        const spawnProcess = spawn(path, args, { stdio: 'inherit', cwd });
+        spawnProcess.on('close', code => {
+            if (0 === code) {
+                resolve({});
+            } else {
+                reject({ error: code });
+            }
+        });
+    });
+}
+
 class OsFileWrapper {
     async resolvePath(parent, file) {
         return path.resolve(parent, file);
@@ -52,6 +65,18 @@ class OsFileWrapper {
 
     async sudoLink(target, link) {
         const prog = `sudo ln -s ${target} ${link}`;
+        const result = await execshell(prog, { capture: true });
+        if (undefined != result.error) {
+            throw `prog: [${prog}] exit with error code. result: [${result}]`;
+        }
+    }
+
+    async unlink(link) {
+        return await fs.unlink(link);
+    }
+
+    async sudoUnlink(link) {
+        const prog = `sudo unlink ${link}`;
         const result = await execshell(prog, { capture: true });
         if (undefined != result.error) {
             throw `prog: [${prog}] exit with error code. result: [${result}]`;
@@ -109,6 +134,7 @@ class OsFileWrapper {
 
 module.exports = {
     execshell,
+    execfile,
     createOsFileWrapper() {
         return new OsFileWrapper();
     },

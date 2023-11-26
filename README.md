@@ -139,6 +139,8 @@ Currently installation from sources is the only way
 ## usage
 
 - `list-handlers`: `deskmanager --handler-dir deskmanager-contrib/src list-handlers`
+- `list-features`: `deskmanager --feature-dir deskmanager-contrib/example/features list-features`
+- `install`, `diff`, `uninstall`
 
 # TODO
 
@@ -147,7 +149,14 @@ Currently installation from sources is the only way
 - [x] create an example of Array declaration
 - [x] support field `order` for cases when you wanna overwrite execution order for specific feature declaration
 - [x] create an example with `order` field
-- [] create systemd-handler.js
-- [] create execfile-handler.js
-- [] write usage section
+- [x] create systemd-handler.js
+- [x] create sample for systemd system
+- [x] create sample for systemd user
+- [x] create execfile-handler.js
+- [x] create sample for execfile
+- [x] create an integration test for handlers infrastructure
+- [x] fix bug: serial promise execution of handlers
+- [x] add debug messages WITH perfomance metrics
+- [x] implement `uninstall` command
+- [x] write usage section
 - [] write autocompletion script
