@@ -19,4 +19,4 @@ then
   exit 1
 fi
 
-deskmanager --verbose --feature-dir "$src_dir/example/features" --handler-dir src --feature-name "$feature_name" "$command"
+deskmanager --feature-dir "$src_dir/example/features" --handler-dir src --feature-name "$feature_name" "$command"

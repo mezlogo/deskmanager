@@ -159,4 +159,5 @@ Currently installation from sources is the only way
 - [x] add debug messages WITH perfomance metrics
 - [x] implement `uninstall` command
 - [x] write usage section
+- [x] create sample for execfile with different cases for each command: diff, install, uninstall
 - [] write autocompletion script
