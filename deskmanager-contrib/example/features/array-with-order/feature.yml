@@ -1,0 +1,7 @@
+feature:
+  - name: execfile
+    value: ['second.sh']
+    order: 2
+  - name: execfile
+    value: ['first.sh']
+    order: 1

@@ -42,15 +42,21 @@ async function deskmanagerCore(context, featureService, handlerService) {
     if (['diff', 'install', 'uninstall'].includes(command)) {
         const featureDir = options.featureDir;
         const featureName = options.featureName;
+        const profileName = options.profileName;
 
         let targetFeatureNames;
 
-        if (!featureDir || !featureName) {
-            throw 'specify --feature-dir and --feature-name options';
+        const bothArgsNull = (undefined == featureName && undefined == profileName);
+        const bothArgsNotNull = (undefined != featureName && undefined != profileName);
+
+        if (undefined == featureDir || bothArgsNull || bothArgsNotNull ) {
+            throw 'specify --feature-dir either --feature-name or --profile-name options';
         }
 
         if (!!featureName) {
             targetFeatureNames = [featureName];
+        } else {
+            targetFeatureNames = await featureService.readProfile(featureDir, profileName);
         }
 
         const handlerDir = options.handlerDir;

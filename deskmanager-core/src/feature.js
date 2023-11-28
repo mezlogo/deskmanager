@@ -73,6 +73,18 @@ class FeatureService {
 
         return features;
     }
+
+    async readProfile(featureDirPath, profileName) {
+        const profilePath = await this.oswrapper.resolvePath(featureDirPath, profileName);
+        const fileContent = await this.oswrapper.readFileAsString(profilePath);
+        return fileContent.split('\n').map(it => it.trim()).filter(it => '' !== it);
+    }
+
+    async writeProfile(featureDirPath, profileName, features) {
+        const profilePath = await this.oswrapper.resolvePath(featureDirPath, profileName);
+        const featuresAsString = features.join('\n');
+        await this.oswrapper.writeFileAsString(profilePath, featuresAsString);
+    }
 }
 
 module.exports = {

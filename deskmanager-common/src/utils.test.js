@@ -1,6 +1,6 @@
 const { createUtils, } = require('./utils');
 
-describe.only('test for [substituteVariable] function', () => {
+describe('test for [substituteVariable] function', () => {
     function createSut(dict) {
         return createUtils(dict);
     }

@@ -6,24 +6,24 @@ describe('test for core function', () => {
     let debug;
 
     let loadAllFeaturesByDir;
+    let readProfile;
 
     let loadAllHandlersByDir;
-    let loadHandlersByDirAndNames;
 
     beforeEach(() => {
         log = jest.fn();
         debug = jest.fn();
 
         loadAllFeaturesByDir = jest.fn(async () => []);
+        readProfile = jest.fn(async () => []);
 
         loadAllHandlersByDir = jest.fn(async () => []);
-        loadHandlersByDirAndNames = jest.fn(async () => []);
     });
 
     async function callSut(options) {
         const context = { options, logger: { log, debug,}, oswrapper: {}, };
-        const featureService = { loadAllFeaturesByDir, };
-        const handlersService = { loadAllHandlersByDir, loadHandlersByDirAndNames, };
+        const featureService = { loadAllFeaturesByDir, readProfile, };
+        const handlersService = { loadAllHandlersByDir, };
         await deskmanagerCore(context, featureService, handlersService);
     }
 
@@ -122,7 +122,43 @@ describe('test for core function', () => {
             expect(calledList).toEqual(['testh1', 'testh1', 'testh1']);
         })
 
-        test('when given features and handlers found should execute handlers in sorted order', async () => {
+        test('when given profile and handlers found should execute handlers in sorted order', async () => {
+            const calledList = [];
+            const handlerInit = jest.fn(() => Promise.resolve());
+            const testh1DiffMock = jest.fn(() => calledList.push('testh1'));
+            const testh2DiffMock = jest.fn(() => calledList.push('testh2'));
+
+            readProfile.mockResolvedValueOnce(['declaredfeature']);
+
+            loadAllFeaturesByDir.mockReturnValueOnce(Promise.resolve([
+                { name: 'declaredfeature', absPath: 'feature path', declarations: [{ name: 'testh1', value: 'v1'}, { name: 'testh2', value: 'v2'}] },
+                { name: 'notdeclaredfeature', absPath: 'feature path', declarations: [{ name: 'testh1', value: 'v5'}, { name: 'testh2', value: 'v6'}] },
+            ]));
+
+            loadAllHandlersByDir.mockReturnValueOnce(Promise.resolve([
+                { name: 'testh1', order: 50, description: 'test desc 1', diff: testh1DiffMock, init: handlerInit, },
+                { name: 'testh2', order: 10, description: 'test desc 2', diff: testh2DiffMock, init: handlerInit, },
+            ]));
+
+            await callSut({ command: 'diff', handlerDir: '.', featureDir: '.', profileName: 'my-profile.txt' });
+
+            expect(readProfile).toHaveBeenCalled();
+
+            expect(handlerInit).toHaveBeenCalled();
+            expect(testh1DiffMock).toHaveBeenCalled();
+            expect(testh2DiffMock).toHaveBeenCalled();
+
+            const testh2Args = testh2DiffMock.mock.calls[0][0];
+            expect(testh2Args).toEqual([{ featureName: 'declaredfeature', featurePath: 'feature path', declaration: 'v2', order: 10, handlerName: 'testh2'}]);
+
+
+            const testh1Args = testh1DiffMock.mock.calls[0][0];
+            expect(testh1Args).toEqual([{ featureName: 'declaredfeature', featurePath: 'feature path', declaration: 'v1', order: 50, handlerName: 'testh1'}]);
+
+            expect(calledList).toEqual(['testh2', 'testh1']);
+        })
+
+        test('when given featureName and handlers found should execute handlers in sorted order', async () => {
             const calledList = [];
             const handlerInit = jest.fn(() => Promise.resolve());
             const testh1DiffMock = jest.fn(() => calledList.push('testh1'));
@@ -173,6 +209,18 @@ describe('test for core function', () => {
             await expect(() => callSut({ command: 'diff', handlerDir: '.', featureDir: '.', featureName: 'notdeclaredfeature' }))
                 .rejects
                 .toEqual('feature with name: [notdeclaredfeature] could not be found');
+        })
+
+        test('when neither featureName nor profileName given should throw an exception', async () => {
+            await expect(() => callSut({ command: 'diff', handlerDir: '.', featureDir: '.', }))
+                .rejects
+                .toEqual('specify --feature-dir either --feature-name or --profile-name options');
+        })
+
+        test('when both featureName and profileName given should throw an exception', async () => {
+            await expect(() => callSut({ command: 'diff', handlerDir: '.', featureDir: '.', featureName: 'feature', profileName: 'profile' }))
+                .rejects
+                .toEqual('specify --feature-dir either --feature-name or --profile-name options');
         })
     })
 });

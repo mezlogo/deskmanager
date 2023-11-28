@@ -5,12 +5,14 @@ describe('test for FeatureService class', () => {
     let statFile;
     let resolvePath;
     let readFileAsString;
+    let writeFileAsString;
     let parseStringAsYml;
 
     beforeEach(() => {
         statFile = jest.fn();
         resolvePath = jest.fn();
         readFileAsString = jest.fn();
+        writeFileAsString = jest.fn();
         parseStringAsYml = jest.fn();
     });
 
@@ -19,12 +21,56 @@ describe('test for FeatureService class', () => {
         const debug = jest.fn();
         const context = {
             logger: { log, debug, },
-            oswrapper: { statFile, resolvePath, readFileAsString, },
+            oswrapper: { statFile, resolvePath, readFileAsString, writeFileAsString, },
             options: {},
             ymlParser: { parseStringAsYml },
         };
         return createFeatureService(context);
     }
+
+    describe('test for [writeProfile] function', () => {
+        test('when profile file does not exist should throw an error', async () => {
+            readFileAsString.mockRejectedValueOnce('no such file or directory');
+            resolvePath.mockResolvedValueOnce('path');
+
+            await expect(() => createSut().readProfile('/tmp', 'mytest.txt'))
+                .rejects
+                .toEqual('no such file or directory');
+
+            expect(readFileAsString).toHaveBeenCalled();
+        })
+
+        test('when profile file is existed should return splited and sanitazed array of features', async () => {
+            readFileAsString.mockResolvedValueOnce(` first-line \nsecond-line \n\n\n    `);
+            resolvePath.mockResolvedValueOnce('path');
+
+            const actuals = await createSut().readProfile('/tmp', 'mytest.txt');
+
+            expect(actuals).toEqual(['first-line', 'second-line']);
+        })
+    })
+
+    describe('test for [writeProfile] function', () => {
+        test('when profile file could not be written should throw an error', async () => {
+            writeFileAsString.mockRejectedValueOnce('no such file or directory');
+            resolvePath.mockResolvedValueOnce('path');
+
+            await expect(() => createSut().writeProfile('/tmp', 'mytest.txt', ['feature1', 'feature2']))
+                .rejects
+                .toEqual('no such file or directory');
+
+            expect(writeFileAsString).toHaveBeenCalled();
+        })
+
+        test('when profile file could be written should pass to writeFileAsString features as string', async () => {
+            writeFileAsString.mockResolvedValueOnce();
+            resolvePath.mockResolvedValueOnce('path');
+
+            await createSut().writeProfile('/tmp', 'mytest.txt', ['feature1', 'feature2']);
+
+            expect(writeFileAsString.mock.calls[0][1]).toEqual('feature1\nfeature2');
+        })
+    })
 
     describe('test for [loadAllFeaturesByDir] function', () => {
         test('when given featureDir is not a DIR should throw an exception', async () => {

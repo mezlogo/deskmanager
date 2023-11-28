@@ -161,3 +161,4 @@ Currently installation from sources is the only way
 - [x] write usage section
 - [x] create sample for execfile with different cases for each command: diff, install, uninstall
 - [] write autocompletion script
+- [x] add profile option support

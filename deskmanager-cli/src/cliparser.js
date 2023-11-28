@@ -19,6 +19,7 @@ function parseCliOptions(argv) {
         .option('-v, --verbose', 'show verbose messages', false)
         .option('--feature-dir <dir>', 'features dir')
         .option('--feature-name <feature>', 'feature name inside features dir')
+        .option('--profile-name <profile>', 'profile name inside features dir')
         .option('--handler-dir <dir>', 'handlers dir')
         // .option('-f, --feature <file...>', 'path to feature, could be file or directory')
         ;

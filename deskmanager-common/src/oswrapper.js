@@ -15,6 +15,10 @@ class OsWrapper {
         return await this.osFileWrapper.readFileUtf(path);
     }
 
+    async writeFileAsString(path, content) {
+        return await this.osFileWrapper.writeFileUtf(path, content);
+    }
+
     async statFile(path) {
         return await this.osFileWrapper.parseFile(path);
     }

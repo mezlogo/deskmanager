@@ -130,6 +130,10 @@ class OsFileWrapper {
     async readFileUtf(path) {
         return await fs.readFile(path, 'utf8');
     }
+
+    async writeFileUtf(path, content) {
+        return await fs.readFile(path, content, 'utf8');
+    }
 }
 
 module.exports = {
