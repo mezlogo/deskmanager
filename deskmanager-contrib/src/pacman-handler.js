@@ -1,6 +1,6 @@
 const READ_PROG = `pacman -Qq`;
 const TEMPLATE = '$TEMPLATE'
-const INSTALL_PROG_TEMPLATE = `pikaur -S --noedit ${TEMPLATE}`
+const INSTALL_PROG_TEMPLATE = `pikaur -S --noedit --needed ${TEMPLATE}`
 const UNINSTALL_PROG_TEMPLATE = `sudo pacman -Rns ${TEMPLATE}`
 
 class PacmanHandler {
